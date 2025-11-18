@@ -1,0 +1,26 @@
+- name: import prompt
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: prompt
+
+- name : disable old redis and enable new one 
+  ansible.builtin.shell: |
+    dnf module disable redis -y
+    dnf module enable redis:7 -y
+
+- name : install redis
+  ansible.builtin.dnf:
+    name : redis
+    state : installed
+
+- name : replace the host in conf file 
+  ansible.builtin.replace :
+    path: /etc/redis/redis.conf
+    regex: '127.0.0.1'
+    replace : '0.0.0.0'
+
+- name: restart service
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: service
+    

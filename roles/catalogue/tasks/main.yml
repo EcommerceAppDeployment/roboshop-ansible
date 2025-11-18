@@ -1,0 +1,33 @@
+- name: import prompt
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: prompt
+
+- name: install nodejs
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: nodejs
+
+- name: create new user,download and copy the repo file
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: new_user
+      
+- name : copy mongo repo
+  ansible.builtin.template:
+    src : mongo.repo
+    dest : /etc/yum.repos.d/mongo.repo
+
+- name : install mongodb-monash
+  ansible.builtin.dnf:
+    name : mongodb-mongosh
+    state : installed
+
+- name : set mongo hosts 
+  ansible.builtin.shell : |
+    mongosh --host MONGODB-SERVER-IPADDRESS </app/db/master-data.js
+ 
+- name: restart service
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: service

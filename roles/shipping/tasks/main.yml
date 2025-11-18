@@ -1,0 +1,50 @@
+- name: import prompt
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: prompt
+
+- name: install maven package
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: maven
+
+- name : create user
+  ansible.builtin.user:
+    name : roboshop
+    state : present
+
+- name: Create a app directory if it does not exist
+  ansible.builtin.file:
+    path: /app
+    state: directory
+    mode: '0755'
+
+- name : install shipping
+  ansible.builtin.unarchive:
+    src: https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip 
+    dest : /app
+    owner : roboshop
+    remote_src: yes
+
+- name : copy shipping service
+  ansible.builtin.template:
+    src: shipping.service
+    dest: /etc/systemd/system/shipping.service
+
+- name : install mysql SERVER
+  ansible.builtin.dnf :
+    name : mysql-server
+    state : installed
+
+- name : set password
+  ansible.builtin.shell : |
+    mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < {{ item }}
+  loop:
+    - /app/db/schema.sql
+    - /app/db/app-user.sql
+    - /app/db/master-data.sql
+
+- name: restart service
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: service

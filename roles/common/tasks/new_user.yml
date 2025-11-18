@@ -1,0 +1,22 @@
+- name : create user
+  ansible.builtin.user:
+    name : roboshop
+
+- name: remove app directory if it exist
+  ansible.builtin.file:
+    path: /app
+    state: absent
+
+- name: Create a app directory if it does not exist
+  ansible.builtin.file:
+    path: /app
+    state: directory
+    mode: '0755'
+
+- name : install {{ component }}
+  ansible.builtin.unarchive:
+    src: https://roboshop-artifacts.s3.amazonaws.com/{{ component }}-v3.zip 
+    dest : /app
+    remote_src: yes
+
+

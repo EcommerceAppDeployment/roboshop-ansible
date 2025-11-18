@@ -1,0 +1,42 @@
+- name: import prompt
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: prompt
+      
+- name : nginx disable
+  ansible.builtin.shell : |
+    dnf module disable nginx -y
+    dnf module enable nginx:1.24 -y
+
+- name : install nginx
+  ansible.builtin.dnf :
+  - name  : nginx
+    state : installed
+
+- name : start systemd sevice
+  ansible.builtin.systemd_service:
+  - name : nginx
+    state : started
+
+- name : remove default conf
+  ansible.builtin.shell: |
+    rm -rf /usr/share/nginx/html/*
+
+- name : install frontend
+  ansible.builtin.unarchive:
+    src: https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip
+    dest: /usr/share/nginx/html 
+    remote_src: yes  
+
+- name : copy nginx conf file
+  ansible.builtin.template:
+    src: nginx.conf
+    dest : /etc/nginx/nginx.conf
+    owner : github-runner
+
+- name : restart systemd_service
+  ansible.builtin.systemd_service:
+    name : nginx
+    state : restarted
+    enabled : true
+    daemon_reload: true
