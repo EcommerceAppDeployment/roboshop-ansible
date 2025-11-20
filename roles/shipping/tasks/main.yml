@@ -26,11 +26,6 @@
     owner : roboshop
     remote_src: yes
 
-- name : copy shipping service
-  ansible.builtin.template:
-    src: shipping.service
-    dest: /etc/systemd/system/shipping.service
-
 - name : install mysql SERVER
   ansible.builtin.dnf :
     name : mysql-server
