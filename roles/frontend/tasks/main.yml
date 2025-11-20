@@ -10,12 +10,12 @@
 
 - name : install nginx
   ansible.builtin.dnf :
-  - name  : nginx
+    name  : nginx
     state : installed
 
 - name : start systemd sevice
   ansible.builtin.systemd_service:
-  - name : nginx
+    name : nginx
     state : started
 
 - name : remove default conf
