@@ -3,11 +3,6 @@
       name: common
       tasks_from: prompt
 
-- name : install mongo
-  ansible.builtin.dnf:
-    name : mongodb-org
-    state : installed
-
 - name : copy repo file
   ansible.builtin.template:
     src: mongo.repo
@@ -18,6 +13,11 @@
     path: /etc/mongod.conf
     regexp: '127.0.0.1'
     replace: '0.0.0.0'
+    
+- name : install mongo
+  ansible.builtin.dnf:
+    name : mongodb-org
+    state : installed
 
 - name : restart systemd_service
   ansible.builtin.systemd_service:
