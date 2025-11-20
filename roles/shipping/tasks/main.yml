@@ -18,7 +18,7 @@
   ansible.builtin.import_role:
       name: common
       tasks_from: maven
-      
+
 - name : install shipping
   ansible.builtin.unarchive:
     src: https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip 
@@ -38,7 +38,7 @@
 
 - name : set password
   ansible.builtin.shell : |
-    mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < {{ item }}
+    mysql -h mysql-dev.sdevops.shop -uroot -pRoboShop@1 < {{ item }}
   loop:
     - /app/db/schema.sql
     - /app/db/app-user.sql

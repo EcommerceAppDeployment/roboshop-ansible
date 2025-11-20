@@ -10,7 +10,7 @@
 
 - name : restart systemd_service
   ansible.builtin.systemd_service:
-    name :  mysql
+    name :  mysqld
     state : restarted
     enabled : true
     daemon_reload: true

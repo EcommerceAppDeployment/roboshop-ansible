@@ -6,7 +6,7 @@
 - name : install mongo
   ansible.builtin.dnf:
     name : mongodb-org
-    state : present
+    state : installed
 
 - name : copy repo file
   ansible.builtin.template:
