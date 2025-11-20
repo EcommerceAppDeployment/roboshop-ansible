@@ -4,7 +4,7 @@
     state : installed
 
 - name: install dependencies and build maven
-  ansible.builtin.shell: 
+  ansible.builtin.shell: |
     mvn clean package 
     mv target/{{ component }}-1.0.jar {{ component }}.jar
   args:
