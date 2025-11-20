@@ -19,17 +19,16 @@
       name: common
       tasks_from: service
 
-- name: install maven package
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: maven
-
 - name : install shipping
   ansible.builtin.unarchive:
     src: https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip 
     dest : /app
-    owner : roboshop
     remote_src: yes
+    
+- name: install maven package
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: maven
 
 - name : install mysql SERVER
   ansible.builtin.dnf :
