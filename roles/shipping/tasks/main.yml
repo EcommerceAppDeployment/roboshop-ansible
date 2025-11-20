@@ -14,6 +14,11 @@
     state: directory
     mode: '0755'
 
+- name: restart service
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: service
+
 - name: install maven package
   ansible.builtin.import_role:
       name: common
@@ -39,7 +44,9 @@
     - /app/db/app-user.sql
     - /app/db/master-data.sql
 
-- name: restart service
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: service
+- name : restart systemd_service
+  ansible.builtin.systemd_service:
+    name :  shipping
+    state : restarted
+    enabled : true
+    daemon_reload: true
