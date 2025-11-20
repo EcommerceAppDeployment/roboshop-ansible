@@ -3,15 +3,15 @@
       name: common
       tasks_from: prompt
 
-- name: install nodejs
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: nodejs
-
 - name: create new user,download and copy the repo file
   ansible.builtin.import_role:
       name: common
       tasks_from: new_user
+      
+- name: install nodejs
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: nodejs
       
 - name: restart service
   ansible.builtin.import_role:

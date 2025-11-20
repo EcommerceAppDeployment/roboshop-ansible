@@ -3,15 +3,15 @@
       name: common
       tasks_from: prompt
 
-- name : install rabbitmq
-  ansible.builtin.dnf :
-    name : rabbitmq-server
-    state : installed
-
 - name : copy the rabbitmq repo file 
   ansible.builtin.template:
     src : rabbitmq.repo
     dest: /etc/yum.repos.d/rabbitmq.repo
+
+- name : install rabbitmq
+  ansible.builtin.dnf :
+    name : rabbitmq-server
+    state : installed
 
 - name: restart service
   ansible.builtin.import_role:

@@ -19,8 +19,10 @@
     regex: '127.0.0.1'
     replace : '0.0.0.0'
 
-- name: restart service
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: service
+- name : restart systemd_service
+  ansible.builtin.systemd_service:
+    name :  redis
+    state : restarted
+    enabled : true
+    daemon_reload: true
     
