@@ -26,7 +26,7 @@
 
 - name : set mongo hosts 
   ansible.builtin.shell : |
-    mongosh --host {{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/catalogue:MONGO_IP token={{token}} url=https://vault_p-internal.sdevops.shop:8200') }} </app/db/master-data.js
+    mongosh --host {{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/catalogue:MONGO_IP token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }} </app/db/master-data.js
  
 - name: restart service
   ansible.builtin.import_role:
