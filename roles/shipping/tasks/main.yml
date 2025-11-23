@@ -37,7 +37,7 @@
 
 - name : set password
   ansible.builtin.shell : |
-    mysql -h {{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200') }} -uroot -pRoboShop@1 < {{ item }}
+    mysql -h {{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }} -uroot -pRoboShop@1 < {{ item }}
   loop:
     - /app/db/schema.sql
     - /app/db/app-user.sql

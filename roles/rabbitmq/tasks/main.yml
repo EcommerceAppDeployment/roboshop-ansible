@@ -27,5 +27,5 @@
 
 - name : set the password 
   ansible.builtin.shell : |
-    rabbitmqctl add_user {{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/rabbitmq:ROOT_USER token={{token}} url=https://vault_p-internal.sdevops.shop:8200') }} {{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/rabbitmq:ROOT_PASSWORD token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}
+    rabbitmqctl add_user {{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/rabbitmq:ROOT_USER token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }} {{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/rabbitmq:ROOT_PASSWORD token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}
     rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
