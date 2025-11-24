@@ -57,7 +57,7 @@
 
 - name : run docker
   community.docker.docker_container:
-    name: {{ component }}
+    name: "{{ component }}"
     image: "public.ecr.aws/w8x4g9h7/roboshop-v3/{{ component }}"
     ports:
       - "8080:8080"
@@ -67,7 +67,7 @@
 
 - name : shipping schema load
   community.docker.docker_container:
-    name: shipping-schema-load-{{ item }}
+    name: "shipping-schema-load-{{ item }}"
     image: "public.ecr.aws/w8x4g9h7/roboshop-v3/schema-load"
     env:
       DB_TYPE: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_TYPE token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
@@ -75,7 +75,7 @@
       DB_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}" 
       DB_USER: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_USER token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
       DB_PASS: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_PASS token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
-      SCHEMA_FILE : {{ item }}
+      SCHEMA_FILE : "{{ item }}"
   loop:
     - "db/app-user.sql"
     - "db/schema.sql"

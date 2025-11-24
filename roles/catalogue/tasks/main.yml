@@ -7,7 +7,7 @@
 
 - name : run docker
   community.docker.docker_container:
-    name: {{ component }}
+    name: "{{ component }}"
     image: "public.ecr.aws/w8x4g9h7/roboshop-v3/{{ component }}"
     ports:
       - "8080:8080"
