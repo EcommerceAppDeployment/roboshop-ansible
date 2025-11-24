@@ -1,51 +1,82 @@
-- name: import prompt
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: prompt
+# - name: import prompt
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: prompt
 
-- name : create user
-  ansible.builtin.user:
-    name : roboshop
-    state : present
+# - name : create user
+#   ansible.builtin.user:
+#     name : roboshop
+#     state : present
 
-- name: Create a app directory if it does not exist
-  ansible.builtin.file:
-    path: /app
-    state: directory
-    mode: '0755'
+# - name: Create a app directory if it does not exist
+#   ansible.builtin.file:
+#     path: /app
+#     state: directory
+#     mode: '0755'
 
-- name: restart service
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: service
+# - name: restart service
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: service
 
-- name : install shipping
-  ansible.builtin.unarchive:
-    src: https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip 
-    dest : /app
-    remote_src: yes
+# - name : install shipping
+#   ansible.builtin.unarchive:
+#     src: https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip 
+#     dest : /app
+#     remote_src: yes
     
-- name: install maven package
+# - name: install maven package
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: maven
+
+# - name : install mysql SERVER
+#   ansible.builtin.dnf :
+#     name : mysql-server
+#     state : installed
+
+# - name : set password
+#   ansible.builtin.shell : |
+#     mysql -h {{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }} -uroot -pRoboShop@1 < {{ item }}
+#   loop:
+#     - /app/db/schema.sql
+#     - /app/db/app-user.sql
+#     - /app/db/master-data.sql
+
+# - name : restart systemd_service
+#   ansible.builtin.systemd_service:
+#     name :  shipping
+#     state : restarted
+#     enabled : true
+#     daemon_reload: true
+
+- name: import docker install
   ansible.builtin.import_role:
       name: common
-      tasks_from: maven
+      tasks_from: docker
 
-- name : install mysql SERVER
-  ansible.builtin.dnf :
-    name : mysql-server
-    state : installed
+- name : run docker
+  community.docker.docker_container:
+    name: {{ component }}
+    image: "public.ecr.aws/w8x4g9h7/roboshop-v3/{{ component }}"
+    ports:
+      - "8080:8080"
+    env:
+      CART_ENDPOINT: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:CART_ENDPOINT token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      DB_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
 
-- name : set password
-  ansible.builtin.shell : |
-    mysql -h {{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }} -uroot -pRoboShop@1 < {{ item }}
+- name : shipping schema load
+  community.docker.docker_container:
+    name: shipping-schema-load-{{ item }}
+    image: "public.ecr.aws/w8x4g9h7/roboshop-v3/schema-load"
+    env:
+      DB_TYPE: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_TYPE token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      APP_GIT_URL: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:APP_GIT_URL token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      DB_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}" 
+      DB_USER: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_USER token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      DB_PASS: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_PASS token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      SCHEMA_FILE : {{ item }}
   loop:
-    - /app/db/schema.sql
-    - /app/db/app-user.sql
-    - /app/db/master-data.sql
-
-- name : restart systemd_service
-  ansible.builtin.systemd_service:
-    name :  shipping
-    state : restarted
-    enabled : true
-    daemon_reload: true
+    - "db/app-user.sql"
+    - "db/schema.sql"
+    - "db/master-data.sql"

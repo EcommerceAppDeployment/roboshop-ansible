@@ -1,24 +1,44 @@
-- name: import prompt
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: prompt
+# - name: import prompt
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: prompt
 
-- name: create new user,download and copy the repo file
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: new_user
+# - name: create new user,download and copy the repo file
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: new_user
       
-- name: install python
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: python
+# - name: install python
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: python
 
-- name: restart service
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: python
+# - name: restart service
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: python
 
-- name: restart service
+# - name: restart service
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: service
+
+- name: import docker install
   ansible.builtin.import_role:
       name: common
-      tasks_from: service
+      tasks_from: docker
+
+- name : run docker
+  community.docker.docker_container:
+    name: {{ component }}
+    image: "public.ecr.aws/w8x4g9h7/roboshop-v3/{{ component }}"
+    ports:
+      - "80:80"
+    env:
+      CART_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/payment:CART_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      CART_PORT: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/payment:CART_PORT token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      USER_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/payment:USER_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      USER_PORT: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/payment:USER_PORT token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      AMQP_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/payment:AMQP_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      AMQP_USER: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/payment:AMQP_USER token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      AMQP_PASS: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/payment:AMQP_PASS token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"

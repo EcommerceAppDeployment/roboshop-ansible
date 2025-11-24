@@ -1,19 +1,37 @@
-- name: import prompt
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: prompt
+# - name: import prompt
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: prompt
 
-- name: create new user,download and copy the repo file
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: new_user
+# - name: create new user,download and copy the repo file
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: new_user
       
-- name: install nodejs
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: nodejs
+# - name: install nodejs
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: nodejs
 
-- name: restart service
+# - name: restart service
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: service
+
+
+- name: import docker install
   ansible.builtin.import_role:
       name: common
-      tasks_from: service
+      tasks_from: docker
+
+- name : run docker
+  community.docker.docker_container:
+    name: {{ component }}
+    image: "public.ecr.aws/w8x4g9h7/roboshop-v3/{{ component }}"
+    ports:
+      - "8080:8080"
+    env:
+      CATALOGUE_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/cart:CATALOGUE_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      CATALOGUE_PORT: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/cart:CATALOGUE_PORT token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      REDIS_HOST : "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/cart:REDIS_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+

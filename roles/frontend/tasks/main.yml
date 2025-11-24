@@ -1,41 +1,64 @@
-- name: import prompt
+# - name: import prompt
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: prompt
+      
+# - name : nginx disable
+#   ansible.builtin.shell : |
+#     dnf module disable nginx -y
+#     dnf module enable nginx:1.24 -y
+
+# - name : install nginx
+#   ansible.builtin.dnf :
+#     name  : nginx
+#     state : installed
+
+# - name : start systemd sevice
+#   ansible.builtin.systemd_service:
+#     name : nginx
+#     state : started
+
+# - name : remove default conf
+#   ansible.builtin.shell: |
+#     rm -rf /usr/share/nginx/html/*
+
+# - name : install frontend
+#   ansible.builtin.unarchive:
+#     src: https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip
+#     dest: /usr/share/nginx/html 
+#     remote_src: yes  
+
+# - name : copy nginx conf file
+#   ansible.builtin.template:
+#     src: nginx.conf
+#     dest : /etc/nginx/nginx.conf
+
+# - name : restart systemd_service
+#   ansible.builtin.systemd_service:
+#     name : nginx
+#     state : restarted
+#     enabled : true
+#     daemon_reload: true
+
+- name: import docker install
   ansible.builtin.import_role:
       name: common
-      tasks_from: prompt
-      
-- name : nginx disable
-  ansible.builtin.shell : |
-    dnf module disable nginx -y
-    dnf module enable nginx:1.24 -y
+      tasks_from: docker
 
-- name : install nginx
-  ansible.builtin.dnf :
-    name  : nginx
-    state : installed
-
-- name : start systemd sevice
-  ansible.builtin.systemd_service:
-    name : nginx
-    state : started
-
-- name : remove default conf
-  ansible.builtin.shell: |
-    rm -rf /usr/share/nginx/html/*
-
-- name : install frontend
-  ansible.builtin.unarchive:
-    src: https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip
-    dest: /usr/share/nginx/html 
-    remote_src: yes  
-
-- name : copy nginx conf file
-  ansible.builtin.template:
-    src: nginx.conf
-    dest : /etc/nginx/nginx.conf
-
-- name : restart systemd_service
-  ansible.builtin.systemd_service:
-    name : nginx
-    state : restarted
-    enabled : true
-    daemon_reload: true
+- name : run docker
+  community.docker.docker_container:
+    name: {{ component }}
+    image: "public.ecr.aws/w8x4g9h7/roboshop-v3/{{ component }}"
+    ports:
+      - "80:80"
+    env:
+      CATALOGUE_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/frontend:CATALOGUE_URL token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      CATALOGUE_PORT : "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/frontend:CATALOGUE_PORT token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      USER_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/frontend:USER_URL token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      USER_PORT : "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/frontend:USER_PORT token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      CART_HOST : "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/frontend:CART_URL token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      CART_PORT: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/frontend:CART_PORT token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      SHIPPING_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/frontend:SHIPPING_URL token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      SHIPPING_PORT : "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/frontend:SHIPPING_PORT token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      PAYMENT_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/frontend:PAYMENT_URL token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      PAYMENT_PORT : "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/frontend:PAYMENT_PORT token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"

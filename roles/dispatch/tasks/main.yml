@@ -1,19 +1,35 @@
-- name: import prompt
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: prompt
+# - name: import prompt
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: prompt
 
-- name: create new user,download and copy the repo file
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: new_user
+# - name: create new user,download and copy the repo file
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: new_user
       
-- name: restart service
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: go
+# - name: restart service
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: go
 
-- name: restart service
+# - name: restart service
+#   ansible.builtin.import_role:
+#       name: common
+#       tasks_from: service
+
+- name: import docker install
   ansible.builtin.import_role:
       name: common
-      tasks_from: service
+      tasks_from: docker
+
+- name : run docker
+  community.docker.docker_container:
+    name: {{ component }}
+    image: "public.ecr.aws/w8x4g9h7/roboshop-v3/{{ component }}"
+    ports:
+      - "8080:8080"
+    env:
+      AMQP_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/dispatch:AMQP_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      AMQP_USER: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/dispatch:AMQP_USER token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      AMQP_PASS: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/dispatch:AMQP_PASS token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"

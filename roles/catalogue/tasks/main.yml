@@ -1,34 +1,26 @@
-- name: import prompt
+# 
+
+- name: import docker install
   ansible.builtin.import_role:
       name: common
-      tasks_from: prompt
+      tasks_from: docker
 
-- name: create new user,download and copy the repo file
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: new_user
+- name : run docker
+  community.docker.docker_container:
+    name: {{ component }}
+    image: "public.ecr.aws/w8x4g9h7/roboshop-v3/{{ component }}"
+    ports:
+      - "8080:8080"
+    env:
+      MONGO: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/catalogue:MONGO token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      MONGO_URL: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/catalogue:MONGO_URL token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
 
-- name: install nodejs
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: nodejs
-
-      
-- name : copy mongo repo
-  ansible.builtin.template:
-    src : mongo.repo
-    dest : /etc/yum.repos.d/mongo.repo
-
-- name : install mongodb-monash
-  ansible.builtin.dnf:
-    name : mongodb-mongosh
-    state : installed
-
-- name : set mongo hosts 
-  ansible.builtin.shell : |
-    mongosh --host {{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/catalogue:MONGO_IP token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }} </app/db/master-data.js
- 
-- name: restart service
-  ansible.builtin.import_role:
-      name: common
-      tasks_from: service
+- name : load schema
+  community.docker.docker_container:
+    name: schema-load
+    image: "public.ecr.aws/w8x4g9h7/roboshop-v3/schema-load"
+    env:
+      DB_TYPE: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/catalogue:DB_TYPE token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}" 
+      APP_GIT_URL: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/catalogue:APP_GIT_URL token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}" 
+      DB_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/catalogue:DB_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+      SCHEMA_FILE: "db/master-data.js"
