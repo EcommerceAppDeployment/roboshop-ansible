@@ -1,4 +1,7 @@
 - name : increase disk storage
-  ansible.builtin.shell:
-    growpart /dev/xvda 4
-    lvextend -r -l +100%FREE /dev/mapper/RootVG-varVol
+  ansible.builtin.shell: growpart /dev/xvda 4
+  ignore_errors: yes
+
+- name : increase lvextend 
+  ansible.builtin.shell: lvextend -r -l +100%FREE /dev/mapper/RootVG-varVol
+  ignore_errors: yes
