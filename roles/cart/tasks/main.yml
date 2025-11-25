@@ -18,7 +18,11 @@
 #       name: common
 #       tasks_from: service
 
-
+- name: install nodejs
+  ansible.builtin.import_role:
+      name: common
+      tasks_from: storage
+      
 - name: import docker install
   ansible.builtin.import_role:
       name: common

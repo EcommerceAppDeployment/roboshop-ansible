@@ -1,0 +1,4 @@
+- name : increase disk storage
+  ansible.builtin.shell:
+    growpart /dev/xvda 4
+    lvextend -r -l +100%FREE /dev/mapper/RootVG-varVol
