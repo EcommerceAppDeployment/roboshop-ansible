@@ -53,7 +53,7 @@
   ansible.builtin.import_role:
       name: common
       tasks_from: storage 
-      
+
 - name: import docker install
   ansible.builtin.import_role:
       name: common
@@ -70,6 +70,10 @@
       DB_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
 
 - name : shipping schema load
+  loop:
+    - "app-user"
+    - "schema"
+    - "master-data"
   community.docker.docker_container:
     name: "shipping-schema-load-{{ item }}"
     image: "public.ecr.aws/w8x4g9h7/roboshop-v3/schema-load"
@@ -79,8 +83,4 @@
       DB_HOST: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_HOST token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}" 
       DB_USER: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_USER token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
       DB_PASS: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-{{env}}/data/shipping:DB_PASS token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
-      SCHEMA_FILE : "{{ item }}"
-  loop:
-    - "db/app-user.sql"
-    - "db/schema.sql"
-    - "db/master-data.sql"
+      SCHEMA_FILE : "db/{{ item }}.sql"
