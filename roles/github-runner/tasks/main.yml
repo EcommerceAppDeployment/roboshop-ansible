@@ -16,6 +16,11 @@
     group: github-runner
     remote_src: yes
 
+- name: Install libicu
+  ansible.builtin.dnf:
+    name: libicu
+    state: installed
+
 - name: configure github-runner
   ansible.builtin.shell: |
     ./config.sh --url https://github.com/EcommerceAppDeployment --token {{token}} --runnergroup Default --name github-runner --labels self-hosted --work _work --replace
@@ -36,3 +41,13 @@
     name: github-runner
     state: restarted
     enabled: yes
+
+- name: download terraform
+  ansible.builtin.get_url:
+    src: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+    dest: /etc/yum.repos.d/hashicorp.repo
+
+- name: install terraform
+  ansible.builtin.dnf:
+    name: terraform
+    state: installed
