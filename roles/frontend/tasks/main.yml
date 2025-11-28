@@ -2,7 +2,7 @@
 #   ansible.builtin.import_role:
 #       name: common
 #       tasks_from: prompt
-      
+
 # - name : nginx disable
 #   ansible.builtin.shell : |
 #     dnf module disable nginx -y
