@@ -23,12 +23,12 @@
 
 - name: configure github-runner
   ansible.builtin.shell: |
-    ./config.sh --url https://github.com/EcommerceAppDeployment --token {{token}} --runnergroup Default --name github-runner --labels self-hosted --work _work --replace
+    ./config.sh --url https://github.com/EcommerceAppDeployment --token {{runner_token}} --runnergroup Default --name github-runner --labels self-hosted --work _work --replace
   args:  
     chdir: /github-runner
   become_user: github-runner
   vars:
-    token: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-infra/data/github-runner:RUNNER_TOKEN token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
+    runner_token: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=roboshop-infra/data/github-runner:RUNNER_TOKEN token={{token}} url=https://vault_p-internal.sdevops.shop:8200 validate_certs=false') }}"
   ignore_errors: yes
 
 - name: Copy Service
