@@ -51,3 +51,24 @@
   ansible.builtin.dnf:
     name: terraform
     state: installed
+
+- name: copy docker repo
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/rhel/docker-ce.repo
+    dest: /etc/yum.repos.d/docker.repo
+
+- name: Download docker
+  ansible.builtin.dnf:
+    name: docker-ce
+    state: installed
+
+- name: Start docker
+  ansible.builtin.systemd_service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: add user
+  ansible.builtin.user:
+    name: github-runner
+    groups: docker
